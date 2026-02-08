@@ -1,0 +1,16 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Allow public access because we are using Custom Auth (not Firebase Auth)
+    // IMPORTANT: This means anyone can read/write to your storage bucket.
+    // Since we are not using Firebase Auth SDK, 'request.auth' is always null.
+    match /items/{allPaths=**} {
+      allow read, write: if true;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if true;
+    }
+  }
+}

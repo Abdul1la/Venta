@@ -1,0 +1,184 @@
+﻿
+> my-react-app@0.0.0 lint
+> eslint .
+
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\public\firebase-messaging-sw.js
+   2:1   error  'importScripts' is not defined  no-undef
+   3:1   error  'importScripts' is not defined  no-undef
+   6:1   error  'firebase' is not defined       no-undef
+  16:19  error  'firebase' is not defined       no-undef
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\components\admin\NotificationCenter.jsx
+   3:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        no-unused-vars
+  19:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  17 |     // Poll every 30s
+  18 |     useEffect(() => {
+> 19 |         loadNotifications();
+     |         ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  20 |         const interval = setInterval(loadNotifications, 30000);
+  21 |         return () => clearInterval(interval);
+  22 |     }, []);  react-hooks/set-state-in-effect
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\components\ui\ConfirmDialog.jsx
+  1:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\components\ui\NotificationBell.jsx
+   4:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                               no-unused-vars
+  17:6   warning  React Hook useEffect has a missing dependency: 'setupForegroundListener'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\components\ui\NotificationContext.jsx
+   2:27  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                   no-unused-vars
+  57:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\auth\AuthContext.jsx
+  75:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\shop\ShopLayout.jsx
+  13:32  error  'Icon' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             no-unused-vars
+  69:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  67 |
+  68 |         <nav style={{ flex: 1 }}>
+> 69 |           <NavItem to="/shop" icon={ShoppingCart} label="Register" />
+     |            ^^^^^^^ This component is created during render
+  70 |           <NavItem to="/shop/history" icon={Clock} label="History" />
+  71 |         </nav>
+  72 |
+
+  11 |   };
+  12 |
+> 13 |   const NavItem = ({ to, icon: Icon, label }) => (
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 14 |     <NavLink 
+     | ^^^^^^^^^^^^^
+> 15 |       to={to} 
+     ΓÇª
+     | ^^^^^^^^^^^^^
+> 34 |     </NavLink>
+     | ^^^^^^^^^^^^^
+> 35 |   );
+     | ^^^^ The component is created during render here
+  36 |
+  37 |   return (
+  38 |     <div style={{ display: 'flex', height: '100vh', flexDirection: 'row', overflow: 'hidden', background: '#111' }}>                   react-hooks/static-components
+  70:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  68 |         <nav style={{ flex: 1 }}>
+  69 |           <NavItem to="/shop" icon={ShoppingCart} label="Register" />
+> 70 |           <NavItem to="/shop/history" icon={Clock} label="History" />
+     |            ^^^^^^^ This component is created during render
+  71 |         </nav>
+  72 |
+  73 |         <button 
+
+  11 |   };
+  12 |
+> 13 |   const NavItem = ({ to, icon: Icon, label }) => (
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 14 |     <NavLink 
+     | ^^^^^^^^^^^^^
+> 15 |       to={to} 
+     ΓÇª
+     | ^^^^^^^^^^^^^
+> 34 |     </NavLink>
+     | ^^^^^^^^^^^^^
+> 35 |   );
+     | ^^^^ The component is created during render here
+  36 |
+  37 |   return (
+  38 |     <div style={{ display: 'flex', height: '100vh', flexDirection: 'row', overflow: 'hidden', background: '#111' }}>  react-hooks/static-components
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\shop\dashboard\ReceiptTemplate.jsx
+  3:73  error  'date' is defined but never used  no-unused-vars
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\shop\dashboard\ShopDashboard.jsx
+    4:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                              no-unused-vars
+   24:10  error    'scanning' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                   no-unused-vars
+   85:6   warning  React Hook useEffect has missing dependencies: 'DEFAULT_METHODS' and 'user?.branchId'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  156:22  error    'type' is defined but never used                                                                                                           no-unused-vars
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\warehouse\WarehouseLayout.jsx
+   6:34  error  'Icon' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-unused-vars
+  37:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  35 |   // Close menu on route change
+  36 |   useEffect(() => {
+> 37 |     setMobileMenuOpen(false);
+     |     ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  38 |   }, [location.pathname]);
+  39 |
+  40 |   const handleLogout = () => {  react-hooks/set-state-in-effect
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\warehouse\branches\BranchDetailView.jsx
+    4:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  341:48  error  'Icon' is defined but never used                                               no-unused-vars
+  367:46  error  'Icon' is defined but never used                                               no-unused-vars
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\warehouse\branches\BranchSubViews.jsx
+    4:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u         no-unused-vars
+  149:11  error  'user' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\warehouse\branches\BranchesView.jsx
+   6:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         no-unused-vars
+  26:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  24 |
+  25 |   useEffect(() => {
+> 26 |     fetchBranches();
+     |     ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  27 |   }, []);
+  28 |
+  29 |   const handleAddBranch = async (e) => {  react-hooks/set-state-in-effect
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\warehouse\branches\MonthlyReceiptsView.jsx
+  214:59  error  'idx' is defined but never used  no-unused-vars
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\warehouse\branches\PaymentMethodsView.jsx
+   4:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                   no-unused-vars
+  11:10  error    'loading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                         no-unused-vars
+  18:6   warning  React Hook useEffect has a missing dependency: 'loadMethods'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\warehouse\dashboard\WarehouseDashboard.jsx
+    3:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  328:63  error  'Icon' is defined but never used                                               no-unused-vars
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\warehouse\inventory\BranchInventoryForm.jsx
+  56:6  warning  React Hook useEffect has a missing dependency: 'loadItemForEdit'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\warehouse\inventory\BranchInventoryView.jsx
+    6:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                     no-unused-vars
+   15:10  error    'loading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                           no-unused-vars
+   21:6   warning  React Hook useEffect has a missing dependency: 'loadInventory'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   39:16  error    'error' is defined but never used                                                                                 no-unused-vars
+  184:41  error    'Icon' is defined but never used                                                                                  no-unused-vars
+
+C:\Users\NIPEAL\Desktop\ClothingStore\my-react-app\src\features\warehouse\inventory\inventoryService.js
+  45:9   error  Duplicate key 'getItemById'                                                              no-dupe-keys
+  46:11  error  'docSnap' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+Γ£û 43 problems (38 errors, 5 warnings)
+

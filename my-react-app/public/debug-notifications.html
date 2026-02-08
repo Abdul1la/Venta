@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Push Notification Debug</title>
+    <style>
+      body {
+        font-family: monospace;
+        padding: 20px;
+        background: #1a1a1a;
+        color: #00ff00;
+      }
+      .test {
+        margin: 20px 0;
+        padding: 10px;
+        border: 1px solid #00ff00;
+      }
+      button {
+        background: #00ff00;
+        color: #000;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .status {
+        color: #ff0;
+      }
+      .error {
+        color: #f00;
+      }
+      .success {
+        color: #0f0;
+      }
+      pre {
+        background: #000;
+        padding: 10px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔔 Push Notification Debugger</h1>
+
+    <div class="test">
+      <h2>1. Browser Support</h2>
+      <div id="browser-support"></div>
+    </div>
+
+    <div class="test">
+      <h2>2. Service Worker Status</h2>
+      <div id="sw-status"></div>
+      <button onclick="registerSW()">Register Service Worker</button>
+    </div>
+
+    <div class="test">
+      <h2>3. Notification Permission</h2>
+      <div id="notif-permission"></div>
+      <button onclick="requestPermission()">Request Permission</button>
+    </div>
+
+    <div class="test">
+      <h2>4. FCM Token</h2>
+      <div id="fcm-token"></div>
+      <button onclick="getFCMToken()">Get FCM Token</button>
+    </div>
+
+    <div class="test">
+      <h2>5. Current User</h2>
+      <div id="current-user"></div>
+    </div>
+
+    <div class="test">
+      <h2>6. Test Notification</h2>
+      <button onclick="showTestNotification()">Show Test Notification</button>
+      <button onclick="triggerCloudFunction()">Trigger Cloud Function</button>
+    </div>
+
+    <div class="test">
+      <h2>Logs:</h2>
+      <pre id="logs"></pre>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+      import {
+        getMessaging,
+        getToken,
+      } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging.js";
+
+      const VAPID_KEY =
+        "BO6XMMY_Gqm5JiV8qFzn21BJlTIKGGhE7bUZmJplZka4RykFsLhezIKHdyDUO2k072y7AFyI6SJvq7KXUb81mrE";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCROmI5S9CITU05Bi_07Fqcv3uDPfKZcUE",
+        authDomain: "venta-e740c.firebaseapp.com",
+        projectId: "venta-e740c",
+        storageBucket: "venta-e740c.firebasestorage.app",
+        messagingSenderId: "703159297432",
+        appId: "1:703159297432:web:d60a439e6807118d2937ed",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const messaging = getMessaging(app);
+      window.messaging = messaging;
+
+      function log(message, type = "status") {
+        const logs = document.getElementById("logs");
+        const timestamp = new Date().toLocaleTimeString();
+        logs.textContent += `[${timestamp}] ${message}\n`;
+        logs.scrollTop = logs.scrollHeight;
+      }
+
+      // 1. Check browser support
+      function checkBrowserSupport() {
+        const div = document.getElementById("browser-support");
+        const checks = {
+          "Service Worker": "serviceWorker" in navigator,
+          Notifications: "Notification" in window,
+          "Push Manager": "PushManager" in window,
+        };
+
+        let html = "";
+        for (const [key, value] of Object.entries(checks)) {
+          html += `<div class="${value ? "success" : "error"}">${value ? "✓" : "✗"} ${key}</div>`;
+        }
+        div.innerHTML = html;
+      }
+
+      // 2. Check service worker
+      async function checkServiceWorker() {
+        const div = document.getElementById("sw-status");
+        try {
+          const registrations =
+            await navigator.serviceWorker.getRegistrations();
+          if (registrations.length > 0) {
+            div.innerHTML = `<div class="success">✓ ${registrations.length} service worker(s) registered</div>`;
+            registrations.forEach((reg, i) => {
+              div.innerHTML += `<div>SW ${i + 1}: ${reg.scope}</div>`;
+            });
+            log("Service workers found: " + registrations.length);
+          } else {
+            div.innerHTML =
+              '<div class="error">✗ No service workers registered</div>';
+            log("No service workers registered", "error");
+          }
+        } catch (e) {
+          div.innerHTML = `<div class="error">Error: ${e.message}</div>`;
+          log("SW check error: " + e.message, "error");
+        }
+      }
+
+      // Register SW
+      window.registerSW = async function () {
+        try {
+          const reg = await navigator.serviceWorker.register(
+            "/firebase-messaging-sw.js",
+          );
+          log("Service worker registered: " + reg.scope, "success");
+          await checkServiceWorker();
+        } catch (e) {
+          log("Service worker registration failed: " + e.message, "error");
+        }
+      };
+
+      // 3. Check notification permission
+      function checkNotificationPermission() {
+        const div = document.getElementById("notif-permission");
+        const permission = Notification.permission;
+        const statusClass =
+          permission === "granted"
+            ? "success"
+            : permission === "denied"
+              ? "error"
+              : "status";
+        div.innerHTML = `<div class="${statusClass}">Status: ${permission}</div>`;
+        log("Notification permission: " + permission);
+      }
+
+      // Request permission
+      window.requestPermission = async function () {
+        try {
+          const permission = await Notification.requestPermission();
+          log("Permission result: " + permission);
+          checkNotificationPermission();
+        } catch (e) {
+          log("Permission request failed: " + e.message, "error");
+        }
+      };
+
+      // 4. Get FCM Token
+      window.getFCMToken = async function () {
+        const div = document.getElementById("fcm-token");
+        try {
+          log("Requesting FCM token...");
+          const token = await getToken(messaging, { vapidKey: VAPID_KEY });
+          div.innerHTML = `<div class="success">✓ Token obtained</div><pre>${token}</pre>`;
+          log("FCM Token: " + token.substring(0, 50) + "...", "success");
+        } catch (e) {
+          div.innerHTML = `<div class="error">Error: ${e.message}</div>`;
+          log("FCM token error: " + e.message, "error");
+        }
+      };
+
+      // 5. Check current user
+      function checkCurrentUser() {
+        const div = document.getElementById("current-user");
+        const user = localStorage.getItem("venta_user");
+        if (user) {
+          const userData = JSON.parse(user);
+          div.innerHTML = `<div class="success">✓ Logged in as: ${userData.username} (${userData.role})</div>`;
+          log("User: " + userData.username);
+        } else {
+          div.innerHTML = '<div class="error">✗ Not logged in</div>';
+          log("No user logged in", "error");
+        }
+      }
+
+      // 6. Test notification
+      window.showTestNotification = function () {
+        if (Notification.permission === "granted") {
+          new Notification("Test Notification", {
+            body: "This is a test notification",
+            icon: "/vite.svg",
+          });
+          log("Test notification shown", "success");
+        } else {
+          log("Permission not granted", "error");
+        }
+      };
+
+      // Trigger cloud function
+      window.triggerCloudFunction = async function () {
+        try {
+          log("Calling cloud function...");
+          const response = await fetch(
+            "https://us-central1-venta-e740c.cloudfunctions.net/testNotification",
+          );
+          const data = await response.json();
+          log("Cloud function response: " + JSON.stringify(data), "success");
+        } catch (e) {
+          log("Cloud function error: " + e.message, "error");
+        }
+      };
+
+      // Run checks on load
+      checkBrowserSupport();
+      checkServiceWorker();
+      checkNotificationPermission();
+      checkCurrentUser();
+      log("Debug page loaded");
+    </script>
+  </body>
+</html>
