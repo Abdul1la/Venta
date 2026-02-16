@@ -35,16 +35,17 @@ class ErrorBoundary extends React.Component {
 import { registerSW } from 'virtual:pwa-register';
 
 // Register PWA Service Worker
-const updateSW = registerSW({
-  onNeedRefresh() {
-    if (confirm('New content available. Reload?')) {
-      updateSW(true);
-    }
-  },
-  onOfflineReady() {
-    console.log('[PWA] App ready to work offline');
-  },
-});
+// Register PWA Service Worker
+// const updateSW = registerSW({
+//   onNeedRefresh() {
+//     if (confirm('New content available. Reload?')) {
+//       updateSW(true);
+//     }
+//   },
+//   onOfflineReady() {
+//     console.log('[PWA] App ready to work offline');
+//   },
+// });
 
 // Register Firebase Messaging Service Worker
 if ('serviceWorker' in navigator) {
