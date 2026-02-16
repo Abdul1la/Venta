@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 
 
 import { ThemeProvider } from './components/ui/ThemeContext';
+import { NetworkIndicator } from './components/ui/NetworkIndicator';
 
 function App() {
   const { t } = useTranslation();
@@ -28,6 +29,7 @@ function App() {
     <AuthProvider>
       <ThemeProvider>
         <NotificationProvider>
+          <NetworkIndicator />
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<LoginView />} />

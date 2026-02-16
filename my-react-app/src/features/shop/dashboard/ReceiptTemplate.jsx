@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const ReceiptTemplate = ({ cart, total, currency, paymentMethod, date, branchInfo, clientName, additionalDiscount }) => {
+export const ReceiptTemplate = ({ cart, total, currency, paymentMethod, date, branchInfo, clientName, additionalDiscount, saleId }) => {
   const { t } = useTranslation();
 
   const getCurrencySymbol = (cur) => {
@@ -47,6 +47,7 @@ export const ReceiptTemplate = ({ cart, total, currency, paymentMethod, date, br
         {/* HEADER */}
         <h2 style={{ margin: '0 0 5px 0', fontSize: '16px', fontWeight: 'bold' }}>{t('shop.receipt.storeName')}</h2>
         <div style={{ marginBottom: '10px' }}>
+          <div>{t('shop.receipt.invoiceLabel')}: {saleId || '---'}</div>
           <div>{t('shop.receipt.branchLabel')}: {branchInfo?.name || t('shop.receipt.mainBranch')}</div>
           <div>{new Date().toLocaleString()}</div>
         </div>

@@ -67,13 +67,15 @@ const WarehouseDashboard = () => {
             sales: bp.value,
             color: COLORS[idx % COLORS.length]
           };
-        });
+        }).filter(item => item.name !== 'Unknown');
         setBranchPerformance(performanceData);
 
         const activityData = salesStats.recentActivity.map(sale => ({
           id: sale.id,
           type: t('common.newSale'),
-          text: t('common.saleRecorded', { amount: `$${sale.total}` }),
+          text: t('common.saleRecorded', { 
+            amount: sale.currency === 'USD' ? `$${sale.total}` : (sale.currency === 'IQD' || sale.currency === 'ID' ? `${sale.total.toLocaleString()} IQD` : `€${sale.total}`) 
+          }),
           time: sale.date || 'Today',
           icon: DollarSign,
           color: '#34C759'
@@ -136,8 +138,8 @@ const WarehouseDashboard = () => {
           title={t('warehouse.dashboard.totalNetworkRevenue')}
           value={
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: isRtl ? 'flex-end' : 'flex-start' }}>
-              <div style={{ color: 'white', fontSize: '26px', fontWeight: '800' }}>${(stats.totalUSD || 0).toLocaleString()}</div>
-              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>{(stats.totalIQD || 0).toLocaleString()} IQD</div>
+              <div style={{ color: 'white', fontSize: '26px', fontWeight: '800' }}>{(stats.totalIQD || 0).toLocaleString()} IQD</div>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>${(stats.totalUSD || 0).toLocaleString()}</div>
               <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>€{(stats.totalEUR || 0).toLocaleString()}</div>
             </div>
           }
@@ -238,7 +240,7 @@ const WarehouseDashboard = () => {
             <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '16px', marginTop: 'auto' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>{t('warehouse.branches.revenue')}</span>
-                {branchPerformance.length > 0 && <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{branchPerformance[0].name} (${branchPerformance[0].sales})</span>}
+                {branchPerformance.length > 0 && <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{branchPerformance[0].name} ({branchPerformance[0].sales.toLocaleString()} {t('common.usd')})</span>}
               </div>
             </div>
           </div>

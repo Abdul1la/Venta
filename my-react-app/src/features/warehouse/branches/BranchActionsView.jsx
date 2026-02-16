@@ -113,8 +113,8 @@ const BranchActionsView = () => {
           <ArrowLeft size={20} color="var(--color-text-primary)" />
         </button>
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0' }}>{t('warehouse.branches.actions.title')}</h1>
-          <p style={{ margin: 0, color: 'var(--color-text-secondary)', fontSize: '14px' }}>{t('warehouse.branches.actions.subtitle')}</p>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0' }}>{t('warehouse.branches.detail.actions.title')}</h1>
+          <p style={{ margin: 0, color: 'var(--color-text-secondary)', fontSize: '14px' }}>{t('warehouse.branches.detail.actions.subtitle')}</p>
         </div>
       </div>
 
@@ -128,21 +128,21 @@ const BranchActionsView = () => {
               <Search size={16} style={{ position: 'absolute', [isRtl ? 'right' : 'left']: '12px', top: '12px', color: 'var(--color-text-secondary)' }} />
               <input
                 className="input-field"
-                placeholder={t('warehouse.branches.actions.searchPlaceholder')}
+                placeholder={t('warehouse.branches.detail.actions.searchPlaceholder')}
                 style={{ [isRtl ? 'paddingRight' : 'paddingLeft']: '36px' }}
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
             </div>
             <button className="btn" style={{ background: 'var(--color-bg-secondary)', padding: '10px 16px', color: 'var(--color-text-primary)' }}>
-              <Filter size={16} style={{ [isRtl ? 'marginLeft' : 'marginRight']: '8px' }} /> {t('warehouse.branches.actions.filter')}
+              <Filter size={16} style={{ [isRtl ? 'marginLeft' : 'marginRight']: '8px' }} /> {t('warehouse.branches.detail.actions.filter')}
             </button>
           </div>
 
           {/* Expanded Filter Row */}
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', padding: '16px', background: 'var(--color-bg-app)', borderRadius: '12px', flexDirection: isRtl ? 'row-reverse' : 'row' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: isRtl ? 'flex-end' : 'flex-start' }}>
-              <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>{t('warehouse.branches.actions.dateRange')}</label>
+              <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>{t('warehouse.branches.detail.actions.dateRange')}</label>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input type="date" className="input-field" style={{ padding: '8px', fontSize: '12px', width: '130px', background: 'var(--color-bg-card)' }}
                   value={filters.startDate} onChange={e => setFilters({ ...filters, startDate: e.target.value })} />
@@ -152,7 +152,7 @@ const BranchActionsView = () => {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: isRtl ? 'flex-end' : 'flex-start' }}>
-              <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>{t('warehouse.branches.actions.employee')}</label>
+              <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>{t('warehouse.branches.detail.actions.employee')}</label>
               <select className="input-field" style={{ padding: '8px', fontSize: '12px', width: '150px', background: 'var(--color-bg-card)' }}
                 value={filters.employee} onChange={e => setFilters({ ...filters, employee: e.target.value })}>
                 <option value="">{t('common.allEmployees', 'All Employees')}</option>
@@ -161,11 +161,11 @@ const BranchActionsView = () => {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: isRtl ? 'flex-end' : 'flex-start' }}>
-              <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>{t('warehouse.branches.actions.priceRange')}</label>
+              <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>{t('warehouse.branches.detail.actions.priceRange')}</label>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <input type="number" placeholder={t('warehouse.branches.actions.min')} className="input-field" style={{ padding: '8px', fontSize: '12px', width: '80px', background: 'var(--color-bg-card)' }}
+                <input type="number" placeholder={t('warehouse.branches.detail.actions.min')} className="input-field" style={{ padding: '8px', fontSize: '12px', width: '80px', background: 'var(--color-bg-card)' }}
                   value={filters.minPrice} onChange={e => setFilters({ ...filters, minPrice: e.target.value })} />
-                <input type="number" placeholder={t('warehouse.branches.actions.max')} className="input-field" style={{ padding: '8px', fontSize: '12px', width: '80px', background: 'var(--color-bg-card)' }}
+                <input type="number" placeholder={t('warehouse.branches.detail.actions.max')} className="input-field" style={{ padding: '8px', fontSize: '12px', width: '80px', background: 'var(--color-bg-card)' }}
                   value={filters.maxPrice} onChange={e => setFilters({ ...filters, maxPrice: e.target.value })} />
               </div>
             </div>
@@ -173,7 +173,7 @@ const BranchActionsView = () => {
               onClick={() => setFilters({ startDate: '', endDate: '', employee: '', minPrice: '', maxPrice: '' })}
               style={{ alignSelf: 'flex-end', padding: '8px 16px', fontSize: '12px', background: 'transparent', border: 'none', color: '#007AFF', cursor: 'pointer', height: '36px' }}
             >
-              {t('warehouse.branches.actions.clear')}
+              {t('warehouse.branches.detail.actions.clear')}
             </button>
           </div>
         </div>
@@ -181,7 +181,7 @@ const BranchActionsView = () => {
         {/* List */}
         <div>
           {filteredActions.length === 0 ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>{t('warehouse.branches.actions.noActions')}</div>
+            <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>{t('warehouse.branches.detail.actions.noActions')}</div>
           ) : (
             filteredActions.map((action, idx) => (
               <div
@@ -212,7 +212,7 @@ const BranchActionsView = () => {
                     <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{action.time} • {t('common.by', 'By')} {action.user}</div>
                     {action.paymentMethod && (
                       <div style={{ fontSize: '11px', color: action.status === 'ORDER' ? 'var(--color-warning)' : 'var(--color-primary)', marginTop: '2px', fontWeight: 500 }}>
-                        {action.status === 'ORDER' ? t('warehouse.branches.actions.pendingOrder') : `${t('warehouse.branches.actions.paidVia')} ${action.paymentMethod}`}
+                        {action.status === 'ORDER' ? t('warehouse.branches.detail.actions.pendingOrder') : `${t('warehouse.branches.detail.actions.paidVia')} ${action.paymentMethod}`}
                       </div>
                     )}
                   </div>

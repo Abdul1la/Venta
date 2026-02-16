@@ -89,8 +89,13 @@ export const authService = {
   /**
    * Get All Employees (for management view)
    */
-  async getEmployees() {
-      const q = query(collection(db, "admins"), where("role", "==", ROLES.EMPLOYEE));
+  async getEmployees(branchId = null) {
+      let q;
+      if (branchId) {
+        q = query(collection(db, "admins"), where("role", "==", ROLES.EMPLOYEE), where("branchId", "==", branchId));
+      } else {
+        q = query(collection(db, "admins"), where("role", "==", ROLES.EMPLOYEE));
+      }
       const snapshot = await getDocs(q);
       return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },

@@ -144,7 +144,7 @@ const MonthlyReceiptsView = () => {
         <div id="monthly-report-print" ref={printRef}>
           {/* Print Header (only visible when printing) */}
           <div style={{ display: 'none' }} className="print-only">
-            <h1 style={{ textAlign: 'center', marginBottom: '5px' }}>CLOTHING STORE</h1>
+            <h1 style={{ textAlign: 'center', marginBottom: '5px' }}>{t('shop.receipt.storeName')}</h1>
             <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>{branchName} - Monthly Report</h2>
             <p style={{ textAlign: 'center', marginBottom: '20px' }}>
               {MONTHS[selectedMonth - 1]} {selectedYear}

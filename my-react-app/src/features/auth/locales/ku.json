@@ -1,0 +1,23 @@
+{
+    "signOut": "چوونەدەر",
+    "roles": {
+        "admin": "Admin",
+        "employee": "Employee"
+    },
+    "errors": {
+        "missingCredentials": "Please enter username and password"
+    },
+    "login": {
+        "title": "Venta System",
+        "subtitle": "Sign in to operate",
+        "warehouseTab": "Warehouse",
+        "shopTab": "Shop",
+        "username": "Username",
+        "usernameAdminPlaceholder": "admin",
+        "usernameShopPlaceholder": "shop",
+        "password": "Password",
+        "passwordPlaceholder": "",
+        "entering": "Entering...",
+        "enterAs": "Enter as {{role}}"
+    }
+}

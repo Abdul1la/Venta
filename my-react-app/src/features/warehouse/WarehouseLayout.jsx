@@ -62,7 +62,7 @@ const WarehouseLayout = () => {
           <button onClick={() => setMobileMenuOpen(true)} style={{ border: 'none', background: 'transparent', padding: 0 }}>
             <Menu size={24} color="var(--color-text-primary)" />
           </button>
-          <span style={{ fontWeight: 'bold', fontSize: '18px', color: 'var(--color-text-primary)' }}>Venta Admin</span>
+          <span style={{ fontWeight: 'bold', fontSize: '18px', color: 'var(--color-text-primary)' }}>{t('common.ventaAdmin')}</span>
         </div>
       </div>
 
@@ -134,7 +134,7 @@ const WarehouseLayout = () => {
             }}
           >
             <LogOut size={20} style={{ marginInlineEnd: '12px' }} />
-            {t('auth.signOut', 'Sign Out')}
+            {t('auth.signOut')}
           </button>
         </aside>
 
@@ -156,7 +156,7 @@ const WarehouseLayout = () => {
             <div style={{ width: '1px', height: '20px', background: 'var(--color-border)', margin: '0 20px' }} />
             <NotificationCenter />
             <div style={{ width: '1px', height: '20px', background: 'var(--color-border)', margin: '0 20px' }} />
-            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>Admin</div>
+            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{t('common.admin')}</div>
           </header>
           <main className="main-content" style={{ flex: 1, overflowY: 'auto', padding: '32px', background: 'var(--color-bg-app)' }}>
             <Outlet />

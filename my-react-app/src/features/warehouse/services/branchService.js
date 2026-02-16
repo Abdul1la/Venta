@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, Timestamp, doc, setDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, Timestamp, doc, setDoc, deleteDoc, query, where } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
 
 export const branchService = {
@@ -30,6 +30,48 @@ export const branchService = {
       return { id: docRef.id, ...branchConfig };
     } catch (error) {
       console.error("Error adding branch:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Delete a branch and all associated data (Cascade Delete)
+   */
+  async deleteBranch(branchId) {
+    try {
+      console.log(`[deleteBranch] Starting cascading delete for branch: ${branchId}`);
+
+      // 1. Delete all Sales for this branch
+      const salesQuery = query(collection(db, "sales"), where("branchId", "==", branchId));
+      const salesSnapshot = await getDocs(salesQuery);
+      const salesDeletes = salesSnapshot.docs.map(doc => deleteDoc(doc.ref));
+      await Promise.all(salesDeletes);
+      console.log(`[deleteBranch] Deleted ${salesDeletes.length} sales records.`);
+
+      // 2. Delete all Employees for this branch
+      // access 'admins' collection where branchId == branchId
+      // Note: We should strictly filter by role 'employee' if needed, but usually only employees have branchId.
+      const employeesQuery = query(collection(db, "admins"), where("branchId", "==", branchId));
+      const employeesSnapshot = await getDocs(employeesQuery);
+      const employeeDeletes = employeesSnapshot.docs.map(doc => deleteDoc(doc.ref));
+      await Promise.all(employeeDeletes);
+      console.log(`[deleteBranch] Deleted ${employeeDeletes.length} employees.`);
+
+      // 3. Delete Branch Settings (Payments)
+      // Note: Subcollections are not automatically deleted in Firestore, so we must allow specific known paths
+      try {
+        await deleteDoc(doc(db, "branches", branchId, "settings", "payments"));
+      } catch (e) {
+        console.warn("No settings/payments doc found or error deleting it", e);
+      }
+
+      // 4. Delete the Branch Document itself
+      await deleteDoc(doc(db, "branches", branchId));
+      console.log(`[deleteBranch] Branch document deleted.`);
+
+      return true;
+    } catch (error) {
+      console.error("Error deleting branch command:", error);
       throw error;
     }
   },

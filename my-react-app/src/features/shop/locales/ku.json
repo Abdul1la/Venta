@@ -1,0 +1,69 @@
+{
+    "nav": {
+        "register": "قاسە",
+        "history": "مێژوو"
+    },
+    "history": {
+        "comingSoon": "مێژوویا فرۆشتنێ (ب زویترین دەم)"
+    },
+    "payment": {
+        "cash": "کاش",
+        "card": "کارتا بانکی"
+    },
+    "pos": {
+        "loadingBranch": "باردکەت...",
+        "branchFallback": "تایێ {{id}}",
+        "scanPlaceholder": "لڤێرە سکان بکە ل {{branch}}...",
+        "clientPlaceholder": "ناڤێ کڕیاری (ئارەزوومەندانە)",
+        "discountPlaceholder": "داشکاندن %",
+        "outOfStock": "پارچە \"{{name}}\" د کۆگەهێ دا نەماینە!",
+        "productNotFound": "بەرهەم نەهاتە دیتن!",
+        "saleCompleted": "فرۆشتن ب سەرکەفتی ئەنجام درا!",
+        "orderSaved": "داواکاری هاتە پاشەکەوتکرن!",
+        "saleSuccess": "{{message}} {{total}}",
+        "closeRegisterConfirm": "تۆ پشتڕاستی تە دڤێت قاسێ دابخەی؟ ڕاپۆرت دێ بۆ ئەدمینی هێتە هنارتن.",
+        "closeRegisterSuccess": "قاسە هاتە داخستن. ڕاپۆرت هاتە هنارتن.",
+        "closeRegisterError": "نەشیام ڕاپۆرتێ بنێرم",
+        "shiftReportTitle": "قاسە هاتە داخستن",
+        "shiftReportMessage": "قاسە ژلایێ {{name}} هاتە داخستن. تەماشای ڕاپۆرتا فرۆشتنێ بکە.",
+        "staffFallback": "کارمەند",
+        "lastScanned": "دوماهیک سکان",
+        "lastScannedAlt": "دوماهیک سکان",
+        "each": "دانە",
+        "registerReady": "قاسە ئامادەیە",
+        "scanToStart": "بارکۆدێ بەرهەمی سکان بکە",
+        "selectPaymentMethod": "رێکا پارەدانێ هەلبژێرە",
+        "subtotal": "کۆم ({{currency}})",
+        "total": "سەرجەم {{currency}}",
+        "processing": "چارەسەردکەت...",
+        "chargeAmount": "وەرگرتن {{total}}",
+        "cartEmpty": "سەبەتە ڤالایە",
+        "saveAsOrder": "پاشەکەوتکرنا داخوازێ",
+        "voidTransaction": "هەڵوەشاندنا کریارێ",
+        "closeRegister": "داخستنا قاسێ",
+        "foreignMixed": "دراڤێ بیانی/تێکەل",
+        "quickCharge": "پارەدان ب لەز",
+        "paymentMethod": "رێکا پارەدانێ",
+        "paymentDetails": "هویرکاریێن پارەدانێ",
+        "totalDue": "کۆمێ گشتی",
+        "paymentsReceived": "پارێ وەرگرتی",
+        "remainingDue": "ماوە (قەرز)",
+        "changeDue": "باقیات (زێدە)",
+        "changeCurrency": "جۆرێ دراڤی",
+        "confirmPayment": "پەسەندکرنا پارەدانێ"
+    },
+    "receipt": {
+        "invoiceLabel": "پسوولە #",
+        "storeName": "فرۆشگەها جلوبەرگان",
+        "branchLabel": "تا",
+        "mainBranch": "تایێ سەرەکی",
+        "itemLine": "{{qty}} x {{price}}",
+        "totalLabel": "کۆم ({{currency}})",
+        "paymentLabel": "پارەدان",
+        "clientLabel": "کڕیار",
+        "discountLabel": "داشکاندن",
+        "thankYou": "سوپاس بۆ سەردانا هەوە!",
+        "returnsPolicy": "زڤڕاندن د ماوێ 30 رۆژان دا",
+        "customerCopy": "*** وێنێ کڕیاری ***"
+    }
+}

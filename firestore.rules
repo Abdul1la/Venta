@@ -1,0 +1,184 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================================================
+    // 🛡️ HELPER FUNCTIONS
+    // ============================================================================
+
+    // Check if the request has data
+    function hasData() {
+      return request.resource.data != null;
+    }
+
+    // Validate that a field exists and is a specific type
+    function isString(field) {
+      return field is string;
+    }
+
+    function isNumber(field) {
+      return field is number;
+    }
+
+    function isBoolean(field) {
+      return field is bool;
+    }
+
+    function isList(field) {
+      return field is list;
+    }
+
+    // Validate string length
+    function isNonEmptyString(field) {
+      return isString(field) && field.size() > 0;
+    }
+
+    // Validate number range
+    function isNonNegative(field) {
+      return isNumber(field) && field >= 0;
+    }
+
+    function isPositive(field) {
+      return isNumber(field) && field > 0;
+    }
+
+    // Check if a field is unchanged during update
+    function isUnchanged(field) {
+      return request.resource.data[field] == resource.data[field];
+    }
+
+    // ============================================================================
+    // 👤 ADMINS / EMPLOYEES
+    // ============================================================================
+    match /admins/{userId} {
+      // Allow reading so the app can verify credentials client-side
+      allow read: if true;
+      
+      // Allow creating new users (e.g. employees) with strict schema
+      allow create: if hasData()
+                    && isNonEmptyString(request.resource.data.username)
+                    && isNonEmptyString(request.resource.data.password)
+                    && (request.resource.data.role == 'admin' || request.resource.data.role == 'employee');
+      
+      // Allow updates (e.g. changing password or permissions)
+      allow update: if hasData()
+                    // Prevent changing the username if it's the unique identifier logic
+                    && (
+                      !('username' in request.resource.data) || 
+                      request.resource.data.username == resource.data.username
+                    );
+
+      // Allow deletion (admins deleting employees)
+      allow delete: if true; 
+    }
+
+    // ============================================================================
+    // 🏢 BRANCHES
+    // ============================================================================
+    match /branches/{branchId} {
+      allow read: if true;
+      
+      allow create: if hasData()
+                    && isNonEmptyString(request.resource.data.name);
+      
+      allow update: if hasData()
+                    && isNonEmptyString(request.resource.data.name);
+
+      allow delete: if true;
+
+      // Branch Settings Subcollection
+      match /settings/{settingId} {
+        allow read, write: if true;
+      }
+    }
+
+    // ============================================================================
+    // 📦 INVENTORY
+    // ============================================================================
+    match /inventory/{itemId} {
+      allow read: if true;
+
+      // Strict validation for new items
+      allow create: if hasData()
+                    // Required fields
+                    && isNonEmptyString(request.resource.data.name)
+                    && isNonEmptyString(request.resource.data.branchId)
+                    && isNonNegative(request.resource.data.sellPrice)
+                    // Optional fields validation if they exist
+                    && (!('costPrice' in request.resource.data) || isNonNegative(request.resource.data.costPrice))
+                    && (!('stock' in request.resource.data) || isNumber(request.resource.data.stock));
+
+      allow update: if hasData()
+                    // Ensure price is never set to negative
+                    && (!('sellPrice' in request.resource.data) || isNonNegative(request.resource.data.sellPrice));
+      
+      allow delete: if true;
+    }
+
+    // ============================================================================
+    // 💰 SALES (CRITICAL DATA)
+    // ============================================================================
+    match /sales/{saleId} {
+      allow read: if true;
+
+      // Sales must have items and a total amount
+      allow create: if hasData()
+                    && isNonEmptyString(request.resource.data.branchId)
+                    && isList(request.resource.data.items)
+                    && request.resource.data.items.size() > 0
+                    && isNumber(request.resource.data.total)
+                    && isNonEmptyString(request.resource.data.currency);
+
+      // Sales are generally immutable, but we might allow small fixes
+      allow update: if false; 
+
+      // 🚨 NEVER DELETE SALES RECORDS
+      allow delete: if false;
+    }
+
+    // ============================================================================
+    // 🏷️ CATEGORIES
+    // ============================================================================
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow create, update: if hasData() && isNonEmptyString(request.resource.data.name);
+      allow delete: if true;
+    }
+
+    // ============================================================================
+    // 🔔 NOTIFICATIONS
+    // ============================================================================
+    match /notifications/{notificationId} {
+      allow read: if true;
+      allow create: if hasData();
+      allow update: if true;
+      allow delete: if true;
+    }
+
+    // ============================================================================
+    // ⚙️ GLOBAL SETTINGS (inc. Exchange Rates)
+    // ============================================================================
+    match /settings/{settingId} {
+      allow read: if true;
+      
+      // Ensure exchange rates structure is maintained
+      allow write: if hasData()
+                   && (
+                     settingId != 'global' || 
+                     (
+                       request.resource.data.exchangeRates.USD is number &&
+                       request.resource.data.exchangeRates.IQD is number &&
+                       request.resource.data.exchangeRates.EUR is number
+                     )
+                   );
+    }
+
+    // ============================================================================
+    // 🚫 DEFAULT DENY
+    // ============================================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

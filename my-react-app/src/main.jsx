@@ -32,14 +32,32 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+import { registerSW } from 'virtual:pwa-register';
+
+// Register PWA Service Worker
+const updateSW = registerSW({
+  onNeedRefresh() {
+    if (confirm('New content available. Reload?')) {
+      updateSW(true);
+    }
+  },
+  onOfflineReady() {
+    console.log('[PWA] App ready to work offline');
+  },
+});
+
 // Register Firebase Messaging Service Worker
 if ('serviceWorker' in navigator) {
+  // Use a different scope or check if VitePWA handles this? 
+  // VitePWA usually generates 'sw.js'. Firebase uses 'firebase-messaging-sw.js'.
+  // They can coexist if scopes are managed or if one imports the other.
+  // For now, keeping both.
   navigator.serviceWorker.register('/firebase-messaging-sw.js')
     .then((registration) => {
-      console.log('[SW] Service Worker registered successfully:', registration);
+      console.log('[SW] Firebase Messaging SW registered:', registration);
     })
     .catch((error) => {
-      console.error('[SW] Service Worker registration failed:', error);
+      console.error('[SW] Firebase Messaging SW failed:', error);
     });
 }
 

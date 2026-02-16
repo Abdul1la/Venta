@@ -89,9 +89,7 @@ const BranchInventoryForm = () => {
     }
   };
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+
 
   const handleVariantChange = (id, field, value) => {
     setVariants(variants.map(v => v.id === id ? { ...v, [field]: value } : v));
@@ -115,6 +113,38 @@ const BranchInventoryForm = () => {
 
   const calculateTotalStock = () => variants.reduce((acc, curr) => acc + Number(curr.quantity), 0);
 
+  // --- AUTO CALCULATION LOGIC ---
+  const [exchangeRates, setExchangeRates] = useState({ USD: 1, IQD: 1500, EUR: 0.92 });
+
+  useEffect(() => {
+    const loadRates = async () => {
+      try {
+        const { settingsService } = await import('../../common/services/settingsService');
+        const rates = await settingsService.getExchangeRates();
+        setExchangeRates(rates);
+      } catch (e) {
+        console.error("Failed to load rates", e);
+      }
+    };
+    loadRates();
+  }, []);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value };
+      
+      // Auto-calculate others if USD price changes
+      if (name === 'sellPrice' && value) {
+        const usdAmount = Number(value);
+        if (!isNaN(usdAmount)) {
+          newData.priceIQD = Math.round(usdAmount * exchangeRates.IQD);
+          newData.priceEUR = (usdAmount * exchangeRates.EUR).toFixed(2);
+        }
+      }
+      return newData;
+    });
+  };
   // Notification Hook
   const { showNotification } = useNotification();
 

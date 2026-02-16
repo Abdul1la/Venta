@@ -1,14 +1,51 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Clock, LogOut, Menu, Sun, Moon } from 'lucide-react';
-import { useState } from 'react';
+import { ShoppingCart, Clock, LogOut, Menu, Sun, Moon, DollarSign, Save, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../components/ui/ThemeContext';
+import { settingsService } from '../common/services/settingsService';
+import { useNotification } from '../../components/ui/NotificationContext';
 
 const ShopLayout = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(true);
   const { isDarkMode, toggleTheme } = useTheme();
+  const { showNotification } = useNotification();
+  
+  const [exchangeRates, setExchangeRates] = useState({ USD: 1, IQD: 1500, EUR: 0.92 });
+  const [localRate, setLocalRate] = useState(1500);
+  const [updatingRate, setUpdatingRate] = useState(false);
+
+  useEffect(() => {
+     // Listen for changes or fetch initial
+     const unsubscribe = settingsService.onExchangeRatesChange((rates) => {
+        setExchangeRates(rates);
+        setLocalRate(rates.IQD);
+     });
+     return () => unsubscribe();
+  }, []);
+
+  const handleUpdateRate = async () => {
+    setUpdatingRate(true);
+    try {
+      let rateToSave = Number(localRate);
+      
+      // AUTO-DETECTION: If the user enters a large number (like 150,000), 
+      // assume they mean price for $100 and divide by 100.
+      if (rateToSave >= 10000) {
+        rateToSave = rateToSave / 100;
+      }
+
+      await settingsService.updateExchangeRates({ ...exchangeRates, IQD: rateToSave });
+      showNotification(t('shop.nav.rateUpdated', 'Rate Updated'), 'success');
+      setLocalRate(rateToSave); // Sync back to display the normalized rate
+    } catch (err) {
+      showNotification(t('shop.nav.rateError', 'Failed to update rate'), 'error');
+    } finally {
+      setUpdatingRate(false);
+    }
+  };
 
   const handleLogout = () => {
     navigate('/login');
@@ -61,11 +98,23 @@ const ShopLayout = () => {
           }}
         >
           {collapsed ? (
-            <div style={{ padding: '8px', background: 'var(--color-primary)', color: 'white', borderRadius: '8px' }}>
-              <span style={{ fontWeight: 'bold' }}>V</span>
+            <div style={{ padding: '6px' }}>
+              <img src="/Venta.png" alt="Venta" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
             </div>
           ) : (
-            <span style={{ fontWeight: 'bold', fontSize: '18px', letterSpacing: '1px' }}>VENTA POS</span>
+            <div style={{ padding: '0 8px', width: '100%', display: 'flex', justifyContent: 'center' }}>
+              <img 
+                src="/VentaWithoutBackground.png" 
+                alt="VENTA POS" 
+                style={{ 
+                  height: '50px', 
+                  objectFit: 'contain', 
+                  maxWidth: '100%',
+                  filter: isDarkMode ? 'invert(1)' : 'none',
+                  mixBlendMode: isDarkMode ? 'screen' : 'multiply'
+                }} 
+              />
+            </div>
           )}
         </div>
 
@@ -73,6 +122,51 @@ const ShopLayout = () => {
           <NavItem to="/shop" icon={ShoppingCart} label={t('shop.nav.register')} />
           <NavItem to="/shop/history" icon={Clock} label={t('shop.nav.history')} />
         </nav>
+
+        {/* Exchange Rate Sidebar Widget */}
+        <div style={{ 
+          marginBottom: '20px', 
+          padding: collapsed ? '0' : '16px', 
+          background: collapsed ? 'transparent' : 'rgba(255,255,255,0.03)', 
+          borderRadius: '16px',
+          border: collapsed ? 'none' : '1px solid var(--color-border)',
+          display: 'flex', flexDirection: 'column', gap: '8px'
+        }}>
+           {collapsed ? (
+              <div 
+                onClick={() => setCollapsed(false)}
+                style={{ height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34C759', cursor: 'pointer' }}
+              >
+                <DollarSign size={20} />
+              </div>
+           ) : (
+             <>
+               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('common.usdRate')}</span>
+                  <button 
+                    onClick={handleUpdateRate} 
+                    disabled={updatingRate}
+                    style={{ background: 'transparent', border: 'none', color: '#34C759', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}
+                  >
+                    {updatingRate ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
+                  </button>
+               </div>
+               <div style={{ position: 'relative' }}>
+                  <input 
+                    type="number"
+                    value={localRate}
+                    onChange={(e) => setLocalRate(e.target.value)}
+                    style={{ 
+                      width: '100%', background: 'var(--color-bg-app)', border: '1px solid var(--color-border)', 
+                      borderRadius: '8px', padding: '8px 8px 8px 30px', color: 'var(--color-text-primary)', 
+                      fontSize: '14px', fontWeight: 700, outline: 'none' 
+                    }}
+                  />
+                  <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#34C759', fontWeight: 700, fontSize: '13px' }}>$</span>
+               </div>
+             </>
+           )}
+        </div>
 
         {/* Theme Toggle */}
         <button

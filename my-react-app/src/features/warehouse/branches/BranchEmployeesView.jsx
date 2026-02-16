@@ -12,22 +12,7 @@ const BranchEmployeesView = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   
-  const [employees, setEmployees] = useState([
-    { 
-      id: 1, 
-      name: 'Ahmed', 
-      email: 'ahmed@venta.com', 
-      permissions: ['POS_ACCESS', 'INVENTORY_WRITE', 'REPORTS_VIEW'], // Full Access
-      permissionLabel: t('warehouse.branches.detail.employeesConfig.roleBranchAdmin')
-    },
-    { 
-      id: 2, 
-      name: 'Sarah', 
-      email: 'sarah@venta.com', 
-      permissions: ['POS_ACCESS'], // Just Sales
-      permissionLabel: t('warehouse.branches.detail.employeesConfig.roleSalesAgent') // Was 'Cashier' in mock but mapping logic uses Sales Agent
-    },
-  ]);
+  const [employees, setEmployees] = useState([]);
 
   const [showAdd, setShowAdd] = useState(false);
   const [newEmp, setNewEmp] = useState({ 
@@ -65,7 +50,8 @@ const BranchEmployeesView = () => {
             username: newEmp.email, // Using email field as username for simplicity in UI matching
             password: newEmp.password,
             permissions: newEmp.permissions,
-            permissionLabel: getPermissionLabel(newEmp.permissions) 
+            permissionLabel: getPermissionLabel(newEmp.permissions),
+            branchId: branchId // Link to current branch
         });
         alert(t('warehouse.branches.detail.employeesConfig.successMessage'));
         setShowAdd(false);
@@ -78,7 +64,7 @@ const BranchEmployeesView = () => {
 
   const loadEmployees = async () => {
       try {
-          const empList = await authService.getEmployees();
+          const empList = await authService.getEmployees(branchId);
           setEmployees(empList.map(e => ({
               ...e,
               email: e.username // Map username back to email for display if needed
@@ -130,12 +116,23 @@ const BranchEmployeesView = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 300px', gap: '32px' }}>
         
         {/* Employee List */}
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          {employees.map((emp, idx) => (
+        <div className="card" style={{ padding: 0, overflow: 'hidden', minHeight: '400px' }}>
+          {employees.length === 0 ? (
+            <div style={{ padding: '60px', textAlign: 'center', color: 'var(--color-text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--color-bg-app)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
+                <Shield size={40} style={{ opacity: 0.2 }} />
+              </div>
+              <h3 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{t('common.noData', 'No Staff Found')}</h3>
+              <p style={{ margin: 0, fontSize: '14px', maxWidth: '300px', lineHeight: '1.5', opacity: 0.7 }}>
+                {t('warehouse.branches.detail.employeesConfig.noStaffDesc', 'There are no employees assigned to this branch yet. Use the form to add new staff members.')}
+              </p>
+            </div>
+          ) : (
+             employees.map((emp, idx) => (
             <div key={emp.id} style={{ 
               display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
               padding: '24px', 
-              borderBottom: idx < employees.length-1 ? '1px solid #eee' : 'none',
+              borderBottom: idx < employees.length-1 ? '1px solid var(--color-border)' : 'none',
               flexDirection: isRtl ? 'row-reverse' : 'row'
             }}>
               <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
@@ -148,11 +145,11 @@ const BranchEmployeesView = () => {
                   {emp.name.charAt(0)}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '4px' }}>{emp.name}</div>
-                  <div style={{ fontSize: '13px', color: '#888', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                     <Shield size={12} fill="#888" /> {emp.permissionLabel}
+                  <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '4px', color: 'var(--color-text-primary)' }}>{emp.name}</div>
+                  <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                     <Shield size={12} style={{ color: 'var(--color-text-secondary)' }} /> {emp.permissionLabel}
                   </div>
-                  <div style={{ fontSize: '11px', color: '#AAA', marginTop: '4px' }}>{emp.email}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', opacity: 0.7, marginTop: '4px' }}>{emp.email}</div>
                 </div>
               </div>
               
@@ -174,7 +171,8 @@ const BranchEmployeesView = () => {
                 )}
               </div>
             </div>
-          ))}
+          ))
+        )}
         </div>
 
         {/* Add Form / Sidebar */}
@@ -185,22 +183,22 @@ const BranchEmployeesView = () => {
               <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 
                 {/* Credentials */}
-                <div style={{ background: '#F9F9F9', padding: '16px', borderRadius: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', marginBottom: '8px', fontWeight: 700, color: '#666' }}>{t('warehouse.branches.detail.employeesConfig.loginDetails')}</label>
+                <div style={{ background: 'var(--color-bg-secondary)', padding: '16px', borderRadius: '12px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', marginBottom: '8px', fontWeight: 700, color: 'var(--color-text-secondary)' }}>{t('warehouse.branches.detail.employeesConfig.loginDetails')}</label>
                   <div style={{ marginBottom: '12px' }}>
-                    <input className="input-field" placeholder={t('warehouse.branches.detail.employeesConfig.fullName')} value={newEmp.name} onChange={e => setNewEmp({...newEmp, name: e.target.value})} required style={{ background: '#FFF' }} />
+                    <input className="input-field" placeholder={t('warehouse.branches.detail.employeesConfig.fullName')} value={newEmp.name} onChange={e => setNewEmp({...newEmp, name: e.target.value})} required style={{ background: 'var(--color-bg-app)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }} />
                   </div>
                   <div style={{ marginBottom: '12px' }}>
-                    <input className="input-field" placeholder={t('warehouse.branches.detail.employeesConfig.usernameEmail')} value={newEmp.email} onChange={e => setNewEmp({...newEmp, email: e.target.value})} required style={{ background: '#FFF' }} />
+                    <input className="input-field" placeholder={t('warehouse.branches.detail.employeesConfig.usernameEmail')} value={newEmp.email} onChange={e => setNewEmp({...newEmp, email: e.target.value})} required style={{ background: 'var(--color-bg-app)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }} />
                   </div>
                   <div>
-                    <input className="input-field" type="password" placeholder={t('warehouse.branches.detail.employeesConfig.password')} value={newEmp.password} onChange={e => setNewEmp({...newEmp, password: e.target.value})} required style={{ background: '#FFF' }} />
+                    <input className="input-field" type="password" placeholder={t('warehouse.branches.detail.employeesConfig.password')} value={newEmp.password} onChange={e => setNewEmp({...newEmp, password: e.target.value})} required style={{ background: 'var(--color-bg-app)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }} />
                   </div>
                 </div>
 
                 {/* Permissions */}
                 <div>
-                   <label style={{ display: 'block', fontSize: '12px', marginBottom: '12px', fontWeight: 700, color: '#666' }}>{t('warehouse.branches.detail.employeesConfig.accessLevel')}</label>
+                   <label style={{ display: 'block', fontSize: '12px', marginBottom: '12px', fontWeight: 700, color: 'var(--color-text-secondary)' }}>{t('warehouse.branches.detail.employeesConfig.accessLevel')}</label>
                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                      {PERMISSION_OPTIONS.map(opt => {
                        const isSelected = newEmp.permissions.includes(opt.id);
@@ -211,15 +209,15 @@ const BranchEmployeesView = () => {
                            style={{ 
                              display: 'flex', alignItems: 'center', gap: '12px', 
                              padding: '12px', borderRadius: '8px', cursor: 'pointer',
-                             background: isSelected ? 'var(--color-primary-light)' : '#FFF',
-                             border: isSelected ? '1px solid var(--color-primary)' : '1px solid #EEE',
+                             background: isSelected ? 'rgba(0, 122, 255, 0.1)' : 'var(--color-bg-app)',
+                             border: isSelected ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
                              transition: 'all 0.2s',
                              flexDirection: isRtl ? 'row-reverse' : 'row'
                            }}
                          >
                            {isSelected 
                              ? <CheckSquare size={20} color="var(--color-primary)" fill="var(--color-primary-light)" /> 
-                             : <Square size={20} color="#CCC" />
+                             : <Square size={20} color="var(--color-text-secondary)" />
                            }
                            <span style={{ fontSize: '13px', fontWeight: isSelected ? 600 : 400 }}>{opt.label}</span>
                          </div>
@@ -235,13 +233,13 @@ const BranchEmployeesView = () => {
               </form>
             </div>
           ) : (
-             <div className="card" style={{ background: '#F5F7FA', border: 'none', textAlign: 'center', padding: '40px 24px' }}>
-               <Shield size={48} style={{ color: '#DDD', marginBottom: '16px' }}/>
-               <h4 style={{ margin: '0 0 8px', fontSize: '16px' }}>{t('warehouse.branches.detail.employeesConfig.secureAccess')}</h4>
-               <p style={{ fontSize: '13px', color: '#888', lineHeight: '1.6' }}>
+             <div className="card" style={{ background: 'var(--color-bg-secondary)', border: 'none', textAlign: 'center', padding: '40px 24px' }}>
+               <Shield size={48} style={{ color: 'var(--color-text-secondary)', marginBottom: '16px' }}/>
+               <h4 style={{ margin: '0 0 8px', fontSize: '16px', color: 'var(--color-text-primary)' }}>{t('warehouse.branches.detail.employeesConfig.secureAccess')}</h4>
+               <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: '1.6' }}>
                  {t('warehouse.branches.detail.employeesConfig.secureAccessDesc')}
                </p>
-               <button className="btn" style={{ marginTop: '16px', background: '#FFF', border: '1px solid #DDD' }} onClick={() => setShowAdd(true)}>
+               <button className="btn" style={{ marginTop: '16px', background: 'var(--color-bg-app)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }} onClick={() => setShowAdd(true)}>
                  + {t('warehouse.branches.detail.employeesConfig.addUser')}
                </button>
              </div>

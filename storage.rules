@@ -1,0 +1,34 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ============================================================================
+    // 🖼️ PRODUCT IMAGES
+    // ============================================================================
+    match /items/{fileName} {
+      // Anyone can view product images
+      allow read: if true;
+
+      // Allow uploads with strict constraints:
+      // 1. Must be an image (contentType starts with 'image/')
+      // 2. Size must be less than 5MB
+      allow create: if request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+
+      // Allow updates with same constraints
+      allow update: if request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+
+      // Allow deleting product images
+      allow delete: if true;
+    }
+
+    // ============================================================================
+    // 🚫 DEFAULT DENY
+    // ============================================================================
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

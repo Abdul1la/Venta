@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../auth/AuthContext';
-import { Plus, MapPin, Users, DollarSign, Search, Filter, MoreHorizontal, ArrowRight, X } from 'lucide-react';
+import { Plus, MapPin, Users, DollarSign, Search, Filter, MoreHorizontal, ArrowRight, X, Trash2 } from 'lucide-react';
 import { branchService } from '../services/branchService';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 import { useTranslation } from 'react-i18next';
 
 const BranchesView = () => {
@@ -29,6 +30,8 @@ const BranchesView = () => {
     fetchBranches();
   }, []);
 
+  const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, branchId: null, branchName: '' });
+
   const handleAddBranch = async (e) => {
     e.preventDefault();
     await branchService.addBranch(newBranch);
@@ -37,7 +40,20 @@ const BranchesView = () => {
     fetchBranches();
   };
 
-  if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>Loading Branches...</div>;
+  const handleDeleteClick = (e, branchId, branchName) => {
+    e.stopPropagation();
+    setDeleteDialog({ isOpen: true, branchId, branchName });
+  };
+
+  const confirmDeleteBranch = async () => {
+    if (deleteDialog.branchId) {
+      await branchService.deleteBranch(deleteDialog.branchId);
+      setDeleteDialog({ isOpen: false, branchId: null, branchName: '' });
+      fetchBranches();
+    }
+  };
+
+  if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>{t('common.loadingBranches')}</div>;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -108,19 +124,19 @@ const BranchesView = () => {
               >
                 <X size={20} />
               </button>
-              <h3 style={{ margin: '0 0 24px 0', fontSize: '18px', fontWeight: 700, color: 'var(--color-text-primary)' }}>Open New Location</h3>
+              <h3 style={{ margin: '0 0 24px 0', fontSize: '18px', fontWeight: 700, color: 'var(--color-text-primary)' }}>{t('warehouse.branches.openNewLocation')}</h3>
 
               <form onSubmit={handleAddBranch} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', alignItems: 'end' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>BRANCH NAME</label>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>{t('warehouse.branches.branchName')}</label>
                   <input className="input-field" placeholder="e.g. North Side Store" value={newBranch.name} onChange={e => setNewBranch({ ...newBranch, name: e.target.value })} required style={{ background: 'var(--color-bg-card)' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>LOCATION</label>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>{t('warehouse.branches.detail.actions.filter')}</label>
                   <input className="input-field" placeholder="Street Address" value={newBranch.location} onChange={e => setNewBranch({ ...newBranch, location: e.target.value })} required style={{ background: 'var(--color-bg-card)' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>MANAGER</label>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>{t('warehouse.branches.manager')}</label>
                   <input className="input-field" placeholder="Full Name" value={newBranch.manager} onChange={e => setNewBranch({ ...newBranch, manager: e.target.value })} required style={{ background: 'var(--color-bg-card)' }} />
                 </div>
                 <button type="submit" className="btn btn-primary" style={{ height: '42px' }}>
@@ -135,14 +151,31 @@ const BranchesView = () => {
       {/* BRANCHES GRID */}
       <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '24px' }}>
         {branches.map(branch => (
-          <BranchCard key={branch.id} branch={branch} onClick={() => navigate(`/warehouse/branches/${branch.id}`)} />
+          <BranchCard 
+            key={branch.id} 
+            branch={branch} 
+            onClick={() => navigate(`/warehouse/branches/${branch.id}`)}
+            onDelete={(e) => handleDeleteClick(e, branch.id, branch.name)}
+            isAdmin={user && user.role === 'admin'}
+          />
         ))}
       </div>
+
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        title={t('warehouse.branches.deleteTitle', 'Delete Branch')}
+        message={t('warehouse.branches.deleteConfirm', { name: deleteDialog.branchName, defaultValue: `Are you sure you want to delete ${deleteDialog.branchName}? This action cannot be undone.` })}
+        confirmText={t('common.delete', 'Delete')}
+        cancelText={t('common.cancel', 'Cancel')}
+        isDestructive={true}
+        onConfirm={confirmDeleteBranch}
+        onCancel={() => setDeleteDialog({ ...deleteDialog, isOpen: false })}
+      />
     </motion.div>
   );
 };
 
-const BranchCard = ({ branch, onClick }) => {
+const BranchCard = ({ branch, onClick, onDelete, isAdmin }) => {
   const { t, i18n } = useTranslation();
   return (
     <motion.div
@@ -200,7 +233,19 @@ const BranchCard = ({ branch, onClick }) => {
       {/* Card Footer - Action hint */}
       <div style={{ padding: '16px 24px', background: 'var(--color-bg-app)', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>{t('warehouse.branches.viewDetails')}</span>
-        <ArrowRight size={16} color="var(--color-text-secondary)" style={{ transform: i18n.dir() === 'rtl' ? 'rotate(180deg)' : 'none' }} />
+        
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+           {isAdmin && (
+            <button 
+              onClick={onDelete}
+              style={{ padding: '6px', borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--color-error)', display: 'flex' }}
+              title={t('common.delete')}
+            >
+              <Trash2 size={16} />
+            </button>
+           )}
+           <ArrowRight size={16} color="var(--color-text-secondary)" style={{ transform: i18n.dir() === 'rtl' ? 'rotate(180deg)' : 'none' }} />
+        </div>
       </div>
 
     </motion.div>

@@ -167,7 +167,18 @@ const BranchDetailView = () => {
 
       {/* STATS ROW */}
       <motion.div variants={itemVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px', marginBottom: '32px' }}>
-        <StatCard title={t('warehouse.branches.detail.totalRevenue')} value={`$${stats.revenue.toLocaleString()}`} trend="+0%" icon={DollarSign} color="var(--color-chart-green)" />
+        <StatCard 
+          title={t('warehouse.branches.detail.totalRevenue')} 
+          value={
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <div style={{ fontSize: '20px', fontWeight: '800' }}>{(stats.revenue || 0).toLocaleString()} IQD</div>
+              <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', opacity: 0.8 }}>${(stats.totalUSD || 0).toLocaleString()}</div>
+            </div>
+          } 
+          trend="+0%" 
+          icon={DollarSign} 
+          color="var(--color-chart-green)" 
+        />
         <StatCard title={t('warehouse.branches.detail.activeOrders')} value={stats.orders} trend="+0%" icon={ShoppingBag} color="var(--color-chart-blue)" />
         <StatCard title={t('warehouse.branches.detail.totalStock')} value={stats.stock} trend={t('warehouse.inventory.title', 'Items')} icon={Package} color="var(--color-chart-orange)" />
         <StatCard title={t('warehouse.branches.detail.employees')} value={stats.employees} trend={t('common.active', 'Active')} icon={Users} color="var(--color-chart-purple)" />

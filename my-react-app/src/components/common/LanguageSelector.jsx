@@ -6,8 +6,8 @@ const LanguageSelector = () => {
     const { i18n, t } = useTranslation();
 
     const languages = [
-        { code: 'en', name: 'English', dir: 'ltr' },
-        { code: 'ku', name: 'Kurdî (Bahdînî)', dir: 'rtl' }
+        { code: 'en', name: 'English', desc: 'English', dir: 'ltr' },
+        { code: 'ku', name: 'Kurdî (Bahdînî)', desc: 'Bahdînî', dir: 'rtl' }
     ];
 
     const changeLanguage = (code) => {
@@ -57,7 +57,7 @@ const LanguageSelector = () => {
                             {lang.name}
                         </span>
                         <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                            {lang.code === 'en' ? 'Default' : 'Bahdînî'}
+                            {lang.desc}
                         </span>
                     </button>
                 ))}

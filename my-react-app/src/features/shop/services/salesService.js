@@ -1,5 +1,6 @@
 import { collection, addDoc, query, where, getDocs, Timestamp, orderBy } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
+import { saveOfflineSale } from "../../../lib/db";
 
 // Exchange rates (base: USD) - Update these as needed
 const EXCHANGE_RATES = {
@@ -19,16 +20,38 @@ const convertCurrency = (amount, fromCurrency, toCurrency) => {
 export const salesService = {
   /**
    * Create a new sale record with amounts in all currencies
+   * @param {Object} saleData - Data for the sale
+   * @param {Object} rates - Optional exchange rates {USD, IQD, EUR}
    */
-  async createSale(saleData) {
+  async createSale(saleData, rates = EXCHANGE_RATES) {
     try {
+      // OFFLINE HANDLING
+      if (!navigator.onLine) {
+         console.log("App is OFFLINE. Saving sale to Local DB.");
+         const offlineId = await saveOfflineSale({
+            ...saleData,
+            // Add default exchange values for consistency
+            totalUSD: saleData.currency === 'USD' ? saleData.total : 0, 
+            createdAt: new Date().toISOString(),
+            date: new Date().toISOString().split('T')[0]
+         });
+         return `offline_${offlineId}`;
+      }
+
       const originalCurrency = saleData.currency || 'USD';
       const originalAmount = Number(saleData.total) || 0;
       
+      // Helper function with dynamic rates
+      const localConvert = (amt, from, to) => {
+        if (from === to) return amt;
+        const inUSD = amt / rates[from];
+        return inUSD * rates[to];
+      };
+
       // Calculate amounts in all three currencies
-      const totalUSD = convertCurrency(originalAmount, originalCurrency, 'USD');
-      const totalIQD = convertCurrency(originalAmount, originalCurrency, 'IQD');
-      const totalEUR = convertCurrency(originalAmount, originalCurrency, 'EUR');
+      const totalUSD = localConvert(originalAmount, originalCurrency, 'USD');
+      const totalIQD = localConvert(originalAmount, originalCurrency, 'IQD');
+      const totalEUR = localConvert(originalAmount, originalCurrency, 'EUR');
       
       const docRef = await addDoc(collection(db, "sales"), {
         ...saleData,
@@ -45,6 +68,18 @@ export const salesService = {
       return docRef.id;
     } catch (error) {
       console.error("Error creating sale:", error);
+      
+      // If error is network related (e.g. Firebase offline throws), fallback to local
+      if (error.code === 'unavailable' || !navigator.onLine) {
+         console.log("Network unavailable. Fallback to Local DB.");
+         const offlineId = await saveOfflineSale({
+            ...saleData,
+            createdAt: new Date().toISOString(),
+            date: new Date().toISOString().split('T')[0]
+         });
+         return `offline_${offlineId}`;
+      }
+      
       throw error;
     }
   },
@@ -63,7 +98,9 @@ export const salesService = {
       
       console.log(`[getBranchStats] Found ${snapshot.size} sales records.`);
 
-      let totalRevenue = 0;
+      let totalUSD = 0;
+      let totalIQD = 0;
+      let totalEUR = 0;
       let orderCount = 0;
       let weeklyData = {};
       const sevenDaysAgo = new Date();
@@ -71,19 +108,40 @@ export const salesService = {
 
       snapshot.forEach(doc => {
         const data = doc.data();
-        // DEBUG: Check specific records
-        // console.log("Sale Record:", data);
         
-        totalRevenue += Number(data.total) || 0;
+        if (data.totalUSD !== undefined) {
+          totalUSD += Number(data.totalUSD) || 0;
+          totalIQD += Number(data.totalIQD) || 0;
+          totalEUR += Number(data.totalEUR) || 0;
+        } else {
+          // Fallback for older records
+          const amount = Number(data.total) || 0;
+          const currency = data.currency || 'USD';
+          if (currency === 'USD') {
+            totalUSD += amount;
+            totalIQD += amount * rates.IQD;
+            totalEUR += amount * rates.EUR;
+          } else if (currency === 'IQD') {
+            totalIQD += amount;
+            totalUSD += amount / rates.IQD;
+            totalEUR += (amount / rates.IQD) * rates.EUR;
+          } else if (currency === 'EUR') {
+            totalEUR += amount;
+            totalUSD += amount / rates.EUR;
+            totalIQD += (amount / rates.EUR) * rates.IQD;
+          }
+        }
+        
         orderCount++;
         
-        // Date Aggregation
+        // Date Aggregation for chart (using totalUSD for consistent weighting)
         const saleDate = data.date; // YYYY-MM-DD
         if (saleDate && new Date(saleDate) >= sevenDaysAgo) {
-            weeklyData[saleDate] = (weeklyData[saleDate] || 0) + (Number(data.total) || 0);
+            weeklyData[saleDate] = (weeklyData[saleDate] || 0) + (data.totalUSD !== undefined ? Number(data.totalUSD) : Number(data.total) || 0);
         }
       });
-      console.log(`[getBranchStats] Calculated Total Revenue: ${totalRevenue}`);
+      
+      console.log(`[getBranchStats] Calculated Revenue - USD: ${totalUSD}, IQD: ${totalIQD}`);
 
       // Format for Recharts (Last 7 Days)
       const chartData = [];
@@ -102,7 +160,10 @@ export const salesService = {
       }
 
       return {
-        totalRevenue,
+        totalRevenue: totalIQD, // Main revenue now in IQD as requested
+        totalUSD,
+        totalIQD,
+        totalEUR,
         orderCount,
         recentSales: snapshot.docs.slice(0, 5).map(d => ({id: d.id, ...d.data()})),
         chartData

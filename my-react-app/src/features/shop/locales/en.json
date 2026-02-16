@@ -1,0 +1,69 @@
+{
+  "nav": {
+    "register": "Register",
+    "history": "History"
+  },
+  "history": {
+    "comingSoon": "Sales History (Coming Soon)"
+  },
+  "payment": {
+    "cash": "Cash",
+    "card": "Card"
+  },
+  "pos": {
+    "loadingBranch": "Loading...",
+    "branchFallback": "Branch {{id}}",
+    "scanPlaceholder": "Scan in {{branch}}...",
+    "clientPlaceholder": "Client Name (Optional)",
+    "discountPlaceholder": "Discount %",
+    "outOfStock": "Item \"{{name}}\" is OUT OF STOCK!",
+    "productNotFound": "Product not found in database!",
+    "saleCompleted": "Sale Completed!",
+    "orderSaved": "Order Saved!",
+    "saleSuccess": "{{message}} {{total}}",
+    "closeRegisterConfirm": "Are you sure you want to CLOSE the register for today? This will generate a report for the admin.",
+    "closeRegisterSuccess": "Register Closed. Report sent to Admin.",
+    "closeRegisterError": "Failed to send report",
+    "shiftReportTitle": "Register Closed",
+    "shiftReportMessage": "Shift closed by {{name}}. Check daily sales report for details.",
+    "staffFallback": "Staff",
+    "lastScanned": "Last Scanned",
+    "lastScannedAlt": "Last Scanned",
+    "each": "each",
+    "registerReady": "Register Ready",
+    "scanToStart": "Scan product barcode to begin sale",
+    "selectPaymentMethod": "Select Payment Method",
+    "subtotal": "Subtotal ({{currency}})",
+    "total": "Total {{currency}}",
+    "processing": "Processing...",
+    "chargeAmount": "Charge {{total}}",
+    "cartEmpty": "Cart Empty",
+    "saveAsOrder": "Save as Order",
+    "voidTransaction": "Void Transaction",
+    "closeRegister": "Close Register",
+    "foreignMixed": "Foreign/Mixed",
+    "quickCharge": "Quick Charge",
+    "paymentMethod": "Payment Method",
+    "paymentDetails": "Payment Details",
+    "totalDue": "Total Due",
+    "paymentsReceived": "Payments Received",
+    "remainingDue": "Still Due",
+    "changeDue": "Change Due",
+    "changeCurrency": "Currency",
+    "confirmPayment": "Confirm Payment"
+  },
+  "receipt": {
+    "invoiceLabel": "Invoice #",
+    "storeName": "CLOTHING STORE",
+    "branchLabel": "Branch",
+    "mainBranch": "Main Branch",
+    "itemLine": "{{qty}} x {{price}}",
+    "totalLabel": "TOTAL ({{currency}})",
+    "paymentLabel": "Payment",
+    "clientLabel": "Client",
+    "discountLabel": "Discount",
+    "thankYou": "Thank you for shopping!",
+    "returnsPolicy": "Returns within 30 days",
+    "customerCopy": "*** CUSTOMER COPY ***"
+  }
+}

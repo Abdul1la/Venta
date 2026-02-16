@@ -17,29 +17,37 @@ const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, confirmTex
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           style={{
-            background: '#FFF', borderRadius: '24px', padding: '32px',
+            background: 'var(--color-bg-card)', borderRadius: '24px', padding: '32px',
             width: '100%', maxWidth: '400px',
             boxShadow: '0 20px 50px rgba(0,0,0,0.2)',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
+            display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+            border: '1px solid var(--color-border)'
           }}
         >
           <div style={{ 
-            width: '64px', height: '64px', borderRadius: '50%', 
-            background: isDestructive ? '#FFEDEC' : '#F5F5F7', 
-            color: isDestructive ? '#FF453A' : '#007AFF',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px'
+            width: '56px', height: '56px', borderRadius: '50%', 
+            background: isDestructive ? 'rgba(255, 69, 58, 0.1)' : 'rgba(0, 122, 255, 0.1)', 
+            color: isDestructive ? 'var(--color-error)' : 'var(--color-primary)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px'
           }}>
-            <AlertTriangle size={32} />
+            <AlertTriangle size={28} />
           </div>
 
-          <h3 style={{ margin: '0 0 12px', fontSize: '20px', fontWeight: 700 }}>{title}</h3>
-          <p style={{ margin: '0 0 32px', color: '#666', lineHeight: '1.5' }}>{message}</p>
+          <h3 style={{ margin: '0 0 12px', fontSize: '20px', fontWeight: 700, color: 'var(--color-text-primary)' }}>{title}</h3>
+          <p style={{ margin: '0 0 32px', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>{message}</p>
 
           <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
             <button 
               onClick={onCancel}
               className="btn"
-              style={{ flex: 1, padding: '16px', background: '#F5F5F7', color: '#000', border: 'none' }}
+              style={{ 
+                flex: 1, padding: '12px', 
+                background: 'var(--color-bg-secondary)', 
+                color: 'var(--color-text-primary)', 
+                border: '1px solid var(--color-border)',
+                borderRadius: '12px',
+                fontWeight: 600
+              }}
             >
               {cancelText}
             </button>
@@ -47,9 +55,11 @@ const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, confirmTex
               onClick={onConfirm}
               className="btn"
               style={{ 
-                flex: 1, padding: '16px', border: 'none', 
-                background: isDestructive ? '#FF453A' : '#007AFF',
-                color: '#FFF'
+                flex: 1, padding: '12px', border: 'none', 
+                background: isDestructive ? 'var(--color-error)' : 'var(--color-primary)',
+                color: '#FFF',
+                borderRadius: '12px',
+                fontWeight: 600
               }}
             >
               {confirmText}
