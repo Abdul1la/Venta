@@ -54,7 +54,7 @@
     },
     "receipt": {
         "invoiceLabel": "پسوولە #",
-        "storeName": "فرۆشگەها جلوبەرگان",
+        "storeName": "MAX",
         "branchLabel": "تا",
         "mainBranch": "تایێ سەرەکی",
         "itemLine": "{{qty}} x {{price}}",

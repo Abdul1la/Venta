@@ -54,7 +54,7 @@
   },
   "receipt": {
     "invoiceLabel": "Invoice #",
-    "storeName": "CLOTHING STORE",
+    "storeName": "MAX",
     "branchLabel": "Branch",
     "mainBranch": "Main Branch",
     "itemLine": "{{qty}} x {{price}}",

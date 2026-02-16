@@ -8,7 +8,7 @@
         "missingCredentials": "Please enter username and password"
     },
     "login": {
-        "title": "Venta System",
+        "title": "MAX System",
         "subtitle": "Sign in to operate",
         "warehouseTab": "Warehouse",
         "shopTab": "Shop",

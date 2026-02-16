@@ -222,7 +222,7 @@ const ShopDashboard = () => {
         finalChange = paymentData.change;
       } else if (status === 'COMPLETED') {
           // Quick Charge Default
-          const totalAmount = currency === 'IQD' ? totals.iqd : (currency === 'EUR' ? totals.eur : grandTotalUSD);
+          const totalAmount = currency === 'IQD' ? finalTotals.iqd : (currency === 'EUR' ? finalTotals.eur : finalTotals.usd);
           finalPayments = [{
               id: Date.now(),
               amount: totalAmount,
@@ -234,7 +234,7 @@ const ShopDashboard = () => {
       // 3. Record Sale
       const saleData = {
         items: cart,
-        total: currency === 'IQD' ? totals.iqd : (currency === 'EUR' ? totals.eur : grandTotalUSD),
+        total: currency === 'IQD' ? finalTotals.iqd : (currency === 'EUR' ? finalTotals.eur : finalTotals.usd),
         currency: currency, 
         
         // Detailed Payment Info
@@ -311,12 +311,11 @@ const ShopDashboard = () => {
   };
 
   // --- CALCULATIONS ---
-  // Calculates totals using the fixed prices set by the owner
   const rawTotals = cart.reduce((acc, item) => {
     const discount = (1 - (Number(item.discount) || 0) / 100);
     const priceUSD = Number(item.sellPrice || item.price || 0);
-    const priceIQD = Number(item.priceIQD || 0);
-    const priceEUR = Number(item.priceEUR || 0);
+    const priceIQD = Number(item.priceIQD || (priceUSD * (exchangeRates.IQD || 1500)));
+    const priceEUR = Number(item.priceEUR || (priceUSD * (exchangeRates.EUR || 0.92)));
 
     acc.usd += (priceUSD * discount) * item.qty;
     acc.iqd += (priceIQD * discount) * item.qty;
@@ -325,17 +324,26 @@ const ShopDashboard = () => {
     return acc;
   }, { usd: 0, iqd: 0, eur: 0 });
 
-  // Apply Additional Discount
   const discountMultiplier = 1 - ((Number(additionalDiscount) || 0) / 100);
-
-  const totals = {
+  
+  const subtotal = {
     usd: rawTotals.usd * discountMultiplier,
-    iqd: rawTotals.iqd * discountMultiplier,
+    iqd: Math.round(rawTotals.iqd * discountMultiplier),
     eur: rawTotals.eur * discountMultiplier
   };
 
-  const taxUSD = totals.usd * 0.05;
-  const grandTotalUSD = totals.usd + taxUSD;
+  const taxRate = 0.05; // 5% tax
+  const tax = {
+    usd: subtotal.usd * taxRate,
+    iqd: Math.round(subtotal.iqd * taxRate),
+    eur: subtotal.eur * taxRate
+  };
+
+  const finalTotals = {
+    usd: subtotal.usd + tax.usd,
+    iqd: subtotal.iqd + tax.iqd,
+    eur: subtotal.eur + tax.eur
+  };
 
   // Formatting helpers
   const formatUSD = (v) => `$${v.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
@@ -596,7 +604,7 @@ const ShopDashboard = () => {
         <div style={{ marginTop: '24px', background: '#09090b', borderRadius: '20px', padding: '20px', border: '1px solid #27272a' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', color: '#a1a1aa', fontSize: '13px' }}>
             <span>{t('shop.pos.subtotal', { currency: 'USD' })}</span>
-            <span>{formatUSD(totals.usd)}</span>
+            <span>{formatUSD(subtotal.usd)}</span>
           </div>
 
           <div style={{ height: '1px', background: '#27272a', marginBottom: '16px' }} />
@@ -615,7 +623,7 @@ const ShopDashboard = () => {
               }}
             >
               <div style={{ fontSize: '10px', color: 'var(--color-text-secondary)', marginBottom: '2px', fontWeight: 600 }}>{t('common.iqd')}</div>
-              <div style={{ fontSize: '13px', fontWeight: '700', color: currency === 'IQD' ? '#007AFF' : 'var(--color-text-primary)', whiteSpace: 'nowrap' }}>{formatIQD(totals.iqd)}</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: currency === 'IQD' ? '#007AFF' : 'var(--color-text-primary)', whiteSpace: 'nowrap' }}>{formatIQD(finalTotals.iqd)}</div>
             </button>
 
             {/* USD Button */}
@@ -630,7 +638,7 @@ const ShopDashboard = () => {
               }}
             >
               <div style={{ fontSize: '10px', color: 'var(--color-text-secondary)', marginBottom: '2px', fontWeight: 600 }}>{t('common.usd')}</div>
-              <div style={{ fontSize: '13px', fontWeight: '700', color: currency === 'USD' ? '#34C759' : 'var(--color-text-primary)', whiteSpace: 'nowrap' }}>{formatUSD(grandTotalUSD)}</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: currency === 'USD' ? '#34C759' : 'var(--color-text-primary)', whiteSpace: 'nowrap' }}>{formatUSD(finalTotals.usd)}</div>
             </button>
 
             {/* EUR Button */}
@@ -645,7 +653,7 @@ const ShopDashboard = () => {
               }}
             >
               <div style={{ fontSize: '10px', color: 'var(--color-text-secondary)', marginBottom: '2px', fontWeight: 600 }}>{t('common.eur')}</div>
-              <div style={{ fontSize: '13px', fontWeight: '700', color: currency === 'EUR' ? '#FF9500' : 'var(--color-text-primary)', whiteSpace: 'nowrap' }}>{formatEUR(totals.eur)}</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: currency === 'EUR' ? '#FF9500' : 'var(--color-text-primary)', whiteSpace: 'nowrap' }}>{formatEUR(finalTotals.eur)}</div>
             </button>
           </div>
 
@@ -692,7 +700,7 @@ const ShopDashboard = () => {
           >
              <div>{t('shop.pos.quickCharge', 'Quick Charge')}</div>
              <div style={{ fontSize: '13px', fontWeight: 500, opacity: 0.8 }}>
-               {currency === 'IQD' ? formatIQD(totals.iqd) : (currency === 'EUR' ? formatEUR(totals.eur) : formatUSD(grandTotalUSD))}
+               {currency === 'IQD' ? formatIQD(finalTotals.iqd) : (currency === 'EUR' ? formatEUR(finalTotals.eur) : formatUSD(finalTotals.usd))}
              </div>
           </button>
 
@@ -805,7 +813,7 @@ const ShopDashboard = () => {
       <PaymentModal 
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
-        totalAmount={currency === 'IQD' ? totals.iqd : (currency === 'EUR' ? totals.eur : grandTotalUSD)}
+        totalAmount={currency === 'IQD' ? finalTotals.iqd : (currency === 'EUR' ? finalTotals.eur : finalTotals.usd)}
         currency={currency}
         exchangeRates={exchangeRates} // Pass exchangeRates
         onConfirm={(data) => {
@@ -818,11 +826,15 @@ const ShopDashboard = () => {
 
       <ReceiptTemplate
         cart={cart}
-        total={currency === 'IQD' ? formatIQD(totals.iqd) : (currency === 'EUR' ? formatEUR(totals.eur) : formatUSD(grandTotalUSD))}
+        subtotal={currency === 'IQD' ? formatIQD(subtotal.iqd) : (currency === 'EUR' ? formatEUR(subtotal.eur) : formatUSD(subtotal.usd))}
+        tax={currency === 'IQD' ? formatIQD(tax.iqd) : (currency === 'EUR' ? formatEUR(tax.eur) : formatUSD(tax.usd))}
+        total={currency === 'IQD' ? formatIQD(finalTotals.iqd) : (currency === 'EUR' ? formatEUR(finalTotals.eur) : formatUSD(finalTotals.usd))}
         currency={currency}
         paymentMethod={selectedMethod?.name}
         clientName={clientName}
         additionalDiscount={additionalDiscount}
+        saleId={lastSaleId}
+        branchInfo={{ name: currentBranchName }}
       />
 
       {/* Footer / Close Register */}

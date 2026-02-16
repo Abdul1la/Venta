@@ -99,13 +99,13 @@ const ShopLayout = () => {
         >
           {collapsed ? (
             <div style={{ padding: '6px' }}>
-              <img src="/Venta.png" alt="Venta" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+              <img src="/Venta.png" alt="MAX" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
             </div>
           ) : (
             <div style={{ padding: '0 8px', width: '100%', display: 'flex', justifyContent: 'center' }}>
               <img 
                 src="/VentaWithoutBackground.png" 
-                alt="VENTA POS" 
+                alt="MAX POS" 
                 style={{ 
                   height: '50px', 
                   objectFit: 'contain', 
