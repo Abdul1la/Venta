@@ -4,10 +4,12 @@
   "version": "1.0.0",
   "description": "Venta Project Monorepo",
   "scripts": {
-    "install:all": "npm install && npm install --prefix my-react-app && npm install --prefix functions",
-    "build": "npm run build --prefix my-react-app",
-    "start": "npm run dev --prefix my-react-app",
-    "functions:build": "npm run build --prefix functions"
+    "install-all": "npm install && npm install --prefix my-react-app && npm install --prefix functions",
+    "web:dev": "npm run dev --prefix my-react-app",
+    "web:build": "npm run build --prefix my-react-app",
+    "functions:build": "npm run build --prefix functions",
+    "build": "npm run web:build",
+    "start": "npm run dev --prefix my-react-app"
   },
   "engines": {
     "node": "20.x"
